@@ -15,7 +15,7 @@ class User(TimeStamp):
     def __str__(self):
         return self.nickname
 
-class Flatform(models.Model):
+class Flatform(TimeStamp):
     name      = models.CharField(max_length = 45)
     social_id = models.CharField(max_length = 100)
 

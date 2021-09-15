@@ -4,7 +4,7 @@ from users.models import User
 from libraries.models import Library, LibraryBook
 from core.models import TimeStamp
 
-class Book(models.Model):
+class Book(TimeStamp):
     title        = models.CharField(max_length = 200)
     publish_date = models.DateField()
     description  = models.CharField(max_length = 500)
@@ -22,14 +22,14 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
-class BookInfo(models.Model):
+class BookInfo(TimeStamp):
     text     = models.TextField()
     contents = models.CharField(max_length = 300)
 
     class Meta:
         db_table = "book_infos"
 
-class Publisher(models.Model):
+class Publisher(TimeStamp):
     name         = models.CharField(max_length = 45)
     introduction = models.TextField()
 
@@ -38,14 +38,8 @@ class Publisher(models.Model):
 
     def __str__(self):
         return self.name
-        
-class Image(models.Model):
-    image_url = models.CharField(max_length = 500)
 
-    class Meta:
-        db_table = "images"
-
-class Category(models.Model):
+class Category(TimeStamp):
     name = models.CharField(max_length = 45)
 
     class Meta:
@@ -61,7 +55,7 @@ class BookCategory(models.Model):
     class Meta:
         db_table = "book_categories"
 
-class Author(models.Model):
+class Author(TimeStamp):
     name         = models.CharField(max_length = 45)
     introduction = models.TextField()
 
@@ -78,7 +72,7 @@ class BookAuthor(models.Model):
     class Meta:
         db_table = "book_authors"
 
-class Shelf(models.Model):
+class Shelf(TimeStamp):
     name    = models.CharField(max_length = 45)
     library = models.ForeignKey(Library, on_delete = models.CASCADE)
     book    = models.ManyToManyField("Book", through = LibraryBook)
@@ -93,7 +87,7 @@ class Comment(TimeStamp):
     book      = models.ForeignKey("Book", on_delete = models.CASCADE)
     user      = models.ForeignKey(User, on_delete = models.CASCADE)
     text      = models.CharField(max_length = 500)
-    user_like = models.ManyToManyField(User, through = "CommentLike")
+    user_like = models.ManyToManyField(User, through = "CommentLike", related_name = "like")
 
     class Meta:
         db_table = "comments"
@@ -101,7 +95,7 @@ class Comment(TimeStamp):
     def __str__(self):
         return self.book
 
-class CommentLike(models.Model):
+class CommentLike(TimeStamp):
     comment = models.ForeignKey("Comment", on_delete = models.CASCADE)
     user    = models.ForeignKey(User, on_delete = models.CASCADE)
 
