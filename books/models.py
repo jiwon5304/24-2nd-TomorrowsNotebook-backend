@@ -19,9 +19,6 @@ class Book(TimeStamp):
     class Meta:
         db_table = "books"
 
-    def __str__(self):
-        return self.title
-
 class BookInfo(TimeStamp):
     text     = models.TextField()
     contents = models.CharField(max_length = 300)
@@ -36,17 +33,11 @@ class Publisher(TimeStamp):
     class Meta:
         db_table = "publishers"
 
-    def __str__(self):
-        return self.name
-
 class Category(TimeStamp):
     name = models.CharField(max_length = 45)
 
     class Meta:
         db_table = "categories"
-
-    def __str__(self):
-        return self.name
 
 class BookCategory(models.Model):
     book     = models.ForeignKey("Book", on_delete = models.CASCADE)
@@ -61,9 +52,6 @@ class Author(TimeStamp):
 
     class Meta:
         db_table = "authors"
-
-    def __str__(self):
-        return self.name
 
 class BookAuthor(models.Model):
     book   = models.ForeignKey("Book", on_delete = models.CASCADE)
@@ -80,20 +68,16 @@ class Shelf(TimeStamp):
     class Meta:
         db_table = "shelves"
 
-    def __str__(self):
-        return self.name
-
 class Comment(TimeStamp):
-    book      = models.ForeignKey("Book", on_delete = models.CASCADE)
-    user      = models.ForeignKey(User, on_delete = models.CASCADE)
-    text      = models.CharField(max_length = 500)
-    user_like = models.ManyToManyField(User, through = "CommentLike", related_name = "like")
+    book       = models.ForeignKey("Book", on_delete = models.CASCADE)
+    user       = models.ForeignKey(User, on_delete = models.CASCADE)
+    text       = models.CharField(max_length = 500)
+    like_count = models.PositiveIntegerField(default=0)
+    user_like  = models.ManyToManyField(User, through = "CommentLike", related_name = "like")
+    
 
     class Meta:
         db_table = "comments"
-
-    def __str__(self):
-        return self.book
 
 class CommentLike(TimeStamp):
     comment = models.ForeignKey("Comment", on_delete = models.CASCADE)
