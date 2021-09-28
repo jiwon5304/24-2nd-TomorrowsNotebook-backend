@@ -29,6 +29,7 @@ class LibraryListView(View):
                 "user_nickname" : user_library.user.nickname,
                 "user_url" : user_library.user.profile_image_url
             })
+        return JsonResponse({"results": results}, status=200)
             
 class ShelfListView(View):
     @login_decorator
@@ -96,7 +97,7 @@ class ShelfDeleteView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=404)
-            
+
 class ViewerView(View):
     @login_decorator
     def get(self, request, book_id):
@@ -117,4 +118,67 @@ class ViewerView(View):
         
         else:
             return JsonResponse({'MESSAGE' : "WRONG_FORMAT"}, status = 401)
+
+class LibraryView(View):
+    @login_decorator
+    def post(self, request, **kwargs):
+        try:
+            data = json.loads(request.body)
+            shelf_name = data["shelf_name"]
+            user_library = Library.objects.get(user_id=request.user.id)
+            
+            if not shelf_name:
+                return JsonResponse({"MESSAGE": "INPUT ERROR"}, status=404)
+
+            if Shelf.objects.filter(name=shelf_name).exists():
+                return JsonResponse({"MESSAGE": "ALREADY EXISTED SHELF"}, status=404)
+
+            Shelf.objects.create(
+                name = data["shelf_name"],
+                library_id = user_library.id
+            )
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
+        except KeyError:
+            return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=404)
+            
+    @login_decorator
+    def get(self, request):
+        try:
+            user         = User.objects.get(id=request.user.id)           
+            user_library = Library.objects.get(user_id=request.user.id)
+            totalbooks   = user_library.librarybook_set.all()
+
+            totalbook_list = []
+            results = [{
+                "user_nickname" : user.nickname,
+                "user_image"    : user.profile_image_url,
+                "user_totalbooks" : totalbook_list,
+            }]
+
+            double_check_list = []
+
+            for books in totalbooks :           
+                bookauthor = books.book.bookauthor_set.all().values()
+                book_author = Author.objects.get(id=bookauthor[0]['author_id']).name
+            
+                if books.book_id not in double_check_list:
+                    totalbook_list.append({    
+                        "book_id"           : books.book_id,
+                        "book_name"         : books.book.title,
+                        "book_image"        : books.book.image_url,
+                        "book_author"       : book_author,
+                        "book_current_page" : books.current_page,      
+                        "book_publish_date" : books.book.publish_date,
+                        "book_publisher"    : books.book.publisher.name,        
+                        "favorite"          : books.favorite
+                    })
+                    double_check_list.append(books.book_id)
+            
+            return JsonResponse({"results": results}, status=200)
+            
+        except KeyError:
+            return JsonResponse({"MESSAGE": "KEY ERROR"}, status=404)
+
+        except User.DoesNotExist:
+            return JsonResponse({"MESSAGE": "User Does Not Exists"}, status=404)
 
