@@ -1,9 +1,10 @@
 from django.urls import path
 from libraries.views import (
-    ShelfDeleteView, 
+    ShelfDeleteView,
     LibraryListView, 
     ShelfListView, 
-    ViewerView
+    ViewerView,
+    LibraryView
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('/<int:book_id>', LibraryListView.as_view()),
     path('/shelflist', ShelfListView.as_view()),
     path('/<int:book_id>/viewer', ViewerView.as_view()),
+    path('', LibraryView.as_view()),
 ]
