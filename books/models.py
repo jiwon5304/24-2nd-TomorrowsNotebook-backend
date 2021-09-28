@@ -7,7 +7,7 @@ from core.models import TimeStamp
 class Book(TimeStamp):
     title        = models.CharField(max_length = 200)
     publish_date = models.DateField()
-    description  = models.CharField(max_length = 500)
+    description  = models.CharField(max_length = 1000)
     page         = models.IntegerField()
     image_url    = models.CharField(max_length = 500)
     publisher    = models.ForeignKey("Publisher", on_delete = models.CASCADE)
@@ -21,7 +21,7 @@ class Book(TimeStamp):
 
 class BookInfo(TimeStamp):
     text     = models.TextField()
-    contents = models.CharField(max_length = 300)
+    contents = models.TextField()
 
     class Meta:
         db_table = "book_infos"
