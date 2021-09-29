@@ -16,23 +16,23 @@ Including another URLconf
 
 from django.urls import path
 from books.views import (
-    CommentLikeView, 
-    CommentView, 
-    BookGenreView, 
+    # CommentLikeView, 
+    # CommentView, 
+    # BookGenreView, 
     BookDetailView,
-    MovieRecommend,
-    SearchMainView,
-    SearchView,
+    # MovieRecommend,
+    # SearchMainView,
+    # SearchView,
     # CommentDeleteView
 )
 
 urlpatterns = [
-    path('/<int:book_id>/comments', CommentView.as_view()),
-    path('/comments-like', CommentLikeView.as_view()),
-    path('/genre', BookGenreView.as_view()),
+    # path('/<int:book_id>/comments', CommentView.as_view()),
+    # path('/comments-like', CommentLikeView.as_view()),
+    # path('/genre', BookGenreView.as_view()),
     path('/<int:book_id>', BookDetailView.as_view()),
-    path('/search', SearchView.as_view()),
-    path('/search/Main', SearchMainView.as_view()),
-    path('/recommend', MovieRecommend.as_view()),
+    # path('/search', SearchView.as_view()),
+    # path('/search/Main', SearchMainView.as_view()),
+    # path('/recommend', MovieRecommend.as_view()),
     # path('/<int:comment_id>/comment-delete', CommentDeleteView.as_view()),
 ]
