@@ -383,4 +383,86 @@ class CommentLikeViewTest(TestCase):
         response = client.post('/books/comments-like?comment_id=1', **{"HTTP_Authorization" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.CDU_6JOu5bOI9SzTF_LRl1I7jso1QxbsiW_-WGrLyAE"}, content_type = 'application/json')
         
         self.assertEqual(response.status_code, 401)
+
+class SearchMainViewTest(TestCase):
+    def setUp(self):
+        Publisher.objects.create(
+                id = 1,
+                name         = '김영사',
+                introduction = 
+                            '''우리는 독자를 섬깁니다.'''
+        )
         
+        BookInfo.objects.create(
+                id = 1,
+                text = '본문1',
+                contents = '목차1'
+        )
+        
+        Book.objects.create(
+            id              = 1,
+            title           = '열두시에 라면을 끓인다는 건',
+            publish_date    = '2019-02-05',
+            description     = '''딱히 배가 고픈 건 아닌데''',
+            page            = 320,
+            image_url       = 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+            publisher_id    = 1,
+            book_info_id    = 1
+        )
+
+        Book.objects.create(
+            id              = 2,
+            title           = '새벽 2시반에 쓰고 있다',
+            publish_date    = '2021-09-30',
+            description     = '너무 힘들다',
+            page            = 123,
+            image_url       = 'anything.img',
+            publisher_id    = 1,
+            book_info_id    = 1
+        )
+
+        Category.objects.create(
+                id = 1,
+                name = '에세이'
+            )
+
+        Category.objects.create(
+                id = 2,
+                name = '자기계발'
+            )
+
+        BookCategory.objects.create(
+            book_id = 1,
+            category_id = 1,
+        )
+
+        BookCategory.objects.create(
+            book_id = 2,
+            category_id = 2,
+        )
+
+    def tearDown(self):
+        Publisher.objects.all().delete()
+        BookInfo.objects.all().delete()
+        Book.objects.all().delete()
+        Category.objects.all().delete()
+        BookCategory.objects.all().delete()
+
+    def test_searchmainview_get_success(self):
+        client = Client()
+        response = client.get('/books/search/Main', content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), 
+            {"RESULT": [
+                {
+                    "image"   : 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+                    "category": '에세이'
+                },
+                {
+                    "image"   : 'anything.img',
+                    "category": '자기계발'
+                }
+            ]}
+        )
+
