@@ -198,6 +198,18 @@ class NewBooksView(View):
         LIMIT  = request.GET.get('limit', '')
 
         books  = Book.objects.all().order_by('-publish_date')
+class BookPublisherView(View):
+    def get(self, request):
+        publisher = request.GET.get('search', '')
+        LIMIT = request.GET.get('limit', '')
+        OFFSET = 0
+
+        q = Q()
+
+        if publisher:
+            q = Q(publisher__name=publisher)
+        
+        books  = Book.objects.select_related('publisher').filter(q)
 
         if LIMIT == '' or int(LIMIT) >= len(books):
             LIMIT = len(books)
