@@ -40,3 +40,33 @@ class BookDetailView(View):
         }
         
         return JsonResponse({"RESULT": book_list}, status=200)
+
+
+class CommentLikeView(View):
+    @login_decorator
+    def post(self, request):
+        try:
+            comment_id     = request.GET.get('comment_id', None)
+            user_id        = request.user.id
+            target_comment = Comment.objects.get(id=comment_id)
+            
+
+            if CommentLike.objects.filter(comment_id=comment_id, user_id=user_id).exists():
+                target_comment.like_count -= 1
+                CommentLike.objects.filter(comment_id=comment_id, user_id=user_id).delete()
+            
+            else:   
+                CommentLike.objects.create(
+                    comment_id = comment_id,
+                    user_id = user_id
+                )
+                target_comment.like_count += 1
+                
+            target_comment.save()
+
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
+        
+        except Comment.DoesNotExist:
+            return JsonResponse({"MESSAGE": "COMMENT DOES NOT EXIST"}, status=404)
+        except:
+            return JsonResponse({"MESSAGE": "WRONG FORMAT"}, status=401) 
