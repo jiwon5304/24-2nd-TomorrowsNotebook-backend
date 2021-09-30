@@ -98,27 +98,6 @@ class ShelfDeleteView(View):
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=404)
 
-class ViewerView(View):
-    @login_decorator
-    def get(self, request, book_id):
-        if request.user:
-            library_book = LibraryBook.objects.select_related('book', 'library', 'book__book_info').filter(library__user = request.user, book__id=book_id).prefetch_related('book__author')
-
-            result = [{
-                'book_id' : library.book.id,
-                'title' : library.book.title,
-                'author' : [author.name for author in library.book.author.all()],
-                'book_info' : library.book.book_info.contents,
-                'image_url' : library.book.image_url,
-                'current_page' : library.current_page,
-                's3_url' : library.book.book_info.text
-            }for library in library_book]
-
-            return JsonResponse({'RESULT' : result}, status = 200)
-        
-        else:
-            return JsonResponse({'MESSAGE' : "WRONG_FORMAT"}, status = 401)
-
 class LibraryView(View):
     @login_decorator
     def post(self, request, **kwargs):
@@ -182,3 +161,82 @@ class LibraryView(View):
         except User.DoesNotExist:
             return JsonResponse({"MESSAGE": "User Does Not Exists"}, status=404)
 
+class ShelfView(View):
+    @login_decorator
+    def get(self, request):
+        try:
+            user         = User.objects.get(id=request.user.id)
+            user_library = Library.objects.get(user_id=request.user.id)
+            shelves      = Shelf.objects.filter(library_id=user_library.id)
+            librarybooks = LibraryBook.objects.select_related('book','shelf').filter(library_id=user_library.id)
+            
+            shelves_list = []
+            results = [{
+                "user_nickname" : user.nickname,
+                "user_image"    : user.profile_image_url,
+                "user_shelves"  : shelves_list,
+            }]
+
+            readingbooks_list = []
+            shelves_list.append({
+                        "shelf_name":  "읽고있는 책",
+                        "book_image" : readingbooks_list
+                    })
+
+            double_check_list =[]
+            for books in librarybooks :
+                if books.reading == True and books.book.image_url not in double_check_list:
+                    readingbooks_list.append(books.book.image_url)
+                    double_check_list.append(books.book.image_url)
+
+            favoritebooks_list = []
+            shelves_list.append({
+                "shelf_name":  "My Favorite",
+                "book_image" : favoritebooks_list
+            })
+
+            double_check_list =[]
+            for books in librarybooks:
+                if books.favorite == True and books.book.image_url not in double_check_list:
+                    favoritebooks_list.append(books.book.image_url)
+                    double_check_list.append(books.book.image_url)
+
+            for shelf in shelves:
+                book_list = []
+                shelves_list.append({
+                    "shelf_id" : shelf.id,
+                    "shelf_name":  shelf.name,
+                    "book_image" : book_list
+                })
+            
+                library = librarybooks.filter(shelf_id = shelf.id)
+                for books in library:
+                    book_list.append(books.book.image_url)
+            return JsonResponse({"results": results}, status=200)
+            
+        except KeyError:
+            return JsonResponse({"MESSAGE": "KEY ERROR"}, status=404)
+
+        except User.DoesNotExist:
+            return JsonResponse({"MESSAGE": "User Does Not Exists"}, status=404)
+
+class ViewerView(View):
+    @login_decorator
+    def get(self, request, book_id):
+        if request.user:
+            library_book = LibraryBook.objects.select_related('book', 'library', 'book__book_info').filter(library__user = request.user, book__id=book_id).prefetch_related('book__author')
+
+            result = [{
+                'book_id' : library.book.id,
+                'title' : library.book.title,
+                'author' : [author.name for author in library.book.author.all()],
+                'book_info' : library.book.book_info.contents,
+                'image_url' : library.book.image_url,
+                'current_page' : library.current_page,
+                's3_url' : library.book.book_info.text
+            }for library in library_book]
+
+            return JsonResponse({'RESULT' : result}, status = 200)
+        
+        else:
+            return JsonResponse({'MESSAGE' : "WRONG_FORMAT"}, status = 401)
