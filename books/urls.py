@@ -16,7 +16,7 @@ Including another URLconf
 
 from django.urls import path
 from books.views import (
-    # CommentLikeView, 
+    CommentLikeView, 
     # CommentView, 
     # BookGenreView, 
     BookDetailView,
@@ -28,7 +28,7 @@ from books.views import (
 
 urlpatterns = [
     # path('/<int:book_id>/comments', CommentView.as_view()),
-    # path('/comments-like', CommentLikeView.as_view()),
+    path('/comments-like', CommentLikeView.as_view()),
     # path('/genre', BookGenreView.as_view()),
     path('/<int:book_id>', BookDetailView.as_view()),
     # path('/search', SearchView.as_view()),
