@@ -639,6 +639,122 @@ class SearchViewTest(TestCase):
             book_info_id    = 1
         )
 
+        Category.objects.create(
+                id = 1,
+                name = '에세이'
+            )
+
+        BookCategory.objects.create(
+            book_id = 1,
+            category_id = 1,
+        )
+
+        Author.objects.create(
+                id   = 1,
+                name = '정다이',
+                introduction = '''"인생은 사랑이 다야."라고 말하는 로맨티스트.'''
+            )
+
+        BookAuthor.objects.create(
+            id = 1,
+            book_id = 1,
+            author_id = 1,
+        )
+        
+        Platform.objects.create(
+            id = 1,
+            name = 'Kakao'
+        )
+
+        User.objects.create(
+            id = 1,
+            nickname = 'hyun',
+            profile_image_url = 'hyun_url1',
+            social_id = '1928131461',
+            platform_id = 1,
+        )
+
+        Comment.objects.create(
+            id = 1,
+            book_id = 1,
+            user_id = 1,
+            text = '야호',
+            like_count = 1,
+            updated_at = '2021.09.29'
+        )
+
+    def tearDown(self):
+        Publisher.objects.all().delete()
+        BookInfo.objects.all().delete()
+        Book.objects.all().delete()
+        Author.objects.all().delete()
+        BookAuthor.objects.all().delete()
+        Category.objects.all().delete()
+        BookCategory.objects.all().delete()
+        Platform.objects.all().delete()
+        User.objects.all().delete()
+        Comment.objects.all().delete()
+
+    def test_searchview_get_success(self):
+        client = Client()
+        response = client.get('/books/search?Search_Target=all&target=라면', content_type='application/json')
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), 
+            {
+            "RESULT"    : [{
+                "title"  : '열두시에 라면을 끓인다는 건',
+                "image"  : 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+                "book_id": 1,
+                "author" : ['정다이'],
+            }],
+            "books_count": 1
+            })
+    def test_searchview_get_no_result(self):
+        client = Client()
+        response = client.get('/books/search?Search_Target=all&target=우엑', content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), 
+            {"RESULT": []}
+        )
+
+
+
+
+
+class BookPublisherViewTest(TestCase):
+    def setUp(self):
+        Publisher.objects.create(
+                id = 1,
+                name         = '김영사',
+                introduction = 
+                            '''우리는 독자를 섬깁니다.'''
+        )
+        
+        BookInfo.objects.create(
+                id = 1,
+                text = '본문1',
+                contents = '목차1'
+        )
+
+        BookInfo.objects.create(
+                id = 2,
+                text = '본문1',
+                contents = '목차1'
+        )
+        
+        Book.objects.create(
+            id              = 1,
+            title           = '열두시에 라면을 끓인다는 건',
+            publish_date    = '2019-02-05',
+            description     = '''딱히 배가 고픈 건 아닌데''',
+            page            = 320,
+            image_url       = 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+            publisher_id    = 1,
+            book_info_id    = 1
+        )
+
         Book.objects.create(
             id              = 2,
             title           = '새벽 2시반에 쓰고 있다',
@@ -648,6 +764,13 @@ class SearchViewTest(TestCase):
             image_url       = 'anything.img',
             publisher_id    = 1,
             book_info_id    = 1
+            title           = '자고 싶다',
+            publish_date    = '2021-09-30',
+            description     = '눈이 감긴다',
+            page            = 777,
+            image_url       = 'anything.img',
+            publisher_id    = 1,
+            book_info_id    = 2
         )
 
         Category.objects.create(
@@ -676,6 +799,13 @@ class SearchViewTest(TestCase):
                 introduction = '''"인생은 사랑이 다야."라고 말하는 로맨티스트.'''
         )
             
+
+
+        Author.objects.create(
+                id   = 2,
+                name = '이무현',
+                introduction = '잠 못드는 사람'
+            )
 
         BookAuthor.objects.create(
             id = 1,
@@ -714,6 +844,12 @@ class SearchViewTest(TestCase):
             updated_at = '2021.09.30'
         )
 
+
+        BookAuthor.objects.create(
+            id = 2,
+            book_id = 2,
+            author_id = 2,
+        )
     def tearDown(self):
         Publisher.objects.all().delete()
         BookInfo.objects.all().delete()
@@ -794,6 +930,27 @@ class SearchViewTest(TestCase):
                         "nickname"    : 'hyun', 
                         "user_image"  : 'hyun_url1', 
                         "comment"     : '새벽 3시다..'
+                    }
+            ]})
+
+    def test_bookpublisherview_get_success(self):
+        client = Client()
+        response = client.get('/books/publisher?search=김영사&limit=2', content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(),
+            {"RESULT":[
+                    {
+                        "title"  : '열두시에 라면을 끓인다는 건',
+                        "image"  : 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+                        "book_id": 1,
+                        "author" : ['정다이']
+                    },
+                    {
+                        "title"  : '자고 싶다',
+                        "image"  : 'anything.img',
+                        "book_id": 2,
+                        "author" : ['이무현']
                     }
                 ]
             }
