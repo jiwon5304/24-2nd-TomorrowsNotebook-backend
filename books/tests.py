@@ -467,8 +467,70 @@ class SearchMainViewTest(TestCase):
         )
 
 
-
 class NewBooksViewTest(TestCase):
+    def setUp(self):
+        Publisher.objects.create(
+                id = 1,
+                name         = '김영사',
+                introduction = 
+                            '''우리는 독자를 섬깁니다.'''
+        )
+        
+        BookInfo.objects.create(
+                id = 1,
+                text = '본문1',
+                contents = '목차1'
+        )
+        
+        Book.objects.create(
+            id              = 1,
+            title           = '열두시에 라면을 끓인다는 건',
+            publish_date    = '2019-02-05',
+            description     = '''딱히 배가 고픈 건 아닌데''',
+            page            = 320,
+            image_url       = 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+            publisher_id    = 1,
+            book_info_id    = 1
+        )
+
+        Author.objects.create(
+                id   = 1,
+                name = '정다이',
+                introduction = '''"인생은 사랑이 다야."라고 말하는 로맨티스트.'''
+            )
+
+        BookAuthor.objects.create(
+            id = 1,
+            book_id = 1,
+            author_id = 1,
+        )
+
+    def tearDown(self):
+        Publisher.objects.all().delete()
+        BookInfo.objects.all().delete()
+        Book.objects.all().delete()
+        Author.objects.all().delete()
+        BookAuthor.objects.all().delete()
+
+    def test_newbooksview_get_success(self):
+        client = Client()
+        response = client.get('/books/new?limit=1', content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(),
+            {"RESULT": [
+                    {
+                        "book_id": 1,
+                        "title"  : '열두시에 라면을 끓인다는 건',
+                        "image"  : 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
+                        "author" : ['정다이']
+                    }
+                ]
+            }
+        )
+
+
+class MovieRecommendTest(TestCase):
     def setUp(self):
         Publisher.objects.create(
                 id = 1,
@@ -643,6 +705,15 @@ class SearchViewTest(TestCase):
             updated_at = '2021.09.29'
         )
 
+        Comment.objects.create(
+            id = 2,
+            book_id = 1,
+            user_id = 1,
+            text = '새벽 3시다..',
+            like_count = 33,
+            updated_at = '2021.09.30'
+        )
+
     def tearDown(self):
         Publisher.objects.all().delete()
         BookInfo.objects.all().delete()
@@ -705,6 +776,9 @@ class SearchViewTest(TestCase):
     def test_newbooksview_get_success(self):
         client = Client()
         response = client.get('/books/new?limit=1', content_type='application/json')
+    def test_movierecommend_get_success(self):
+        client = Client()
+        response = client.get('/books/recommend?limit=1', content_type='application/json')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),
@@ -713,7 +787,13 @@ class SearchViewTest(TestCase):
                         "book_id": 1,
                         "title"  : '열두시에 라면을 끓인다는 건',
                         "image"  : 'https://image.aladin.co.kr/product/17716/60/cover500/8969523138_1.jpg',
-                        "author" : ['정다이']
+                        "author" : ['정다이'],
+                        "book_id"     : 1,
+                        "title"       : '열두시에 라면을 끓인다는 건',
+                        "publish_date": '2019.02.05',
+                        "nickname"    : 'hyun', 
+                        "user_image"  : 'hyun_url1', 
+                        "comment"     : '새벽 3시다..'
                     }
                 ]
             }

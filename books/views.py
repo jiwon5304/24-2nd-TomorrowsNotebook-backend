@@ -212,3 +212,27 @@ class NewBooksView(View):
         }for book in books]
 
         return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=200)
+
+class MovieRecommend(View):
+    def get(self, request):
+        
+        OFFSET = 0
+        LIMIT  = request.GET.get('limit', '')
+        books  = Book.objects.prefetch_related('comment_set').order_by('-publish_date')
+        
+        if LIMIT == '' or int(LIMIT) >= len(books):
+            LIMIT = len(books)
+        else:
+            LIMIT = int(LIMIT)
+
+        book_list = [{
+            "book_image"  : book.image_url,
+            "book_id"     : book.id,
+            "title"       : book.title,
+            "publish_date": book.publish_date.strftime("%Y.%m.%d"),
+            "nickname"    : book.comment_set.order_by('-like_count').first().user.nickname if Comment.objects.filter(book_id=book.id).exists() else "NONE", 
+            "user_image"  : book.comment_set.order_by('-like_count').first().user.profile_image_url if Comment.objects.filter(book_id=book.id).exists() else "NONE", 
+            "comment"     : book.comment_set.order_by('-like_count').first().text if Comment.objects.filter(book_id=book.id).exists() else "NONE",
+        }for book in books]
+
+        return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=200)
