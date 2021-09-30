@@ -45,7 +45,7 @@ class CommentView(View):
     # 회원용, 비회원용
     @login_decorator
     def get(self, request, book_id):
-       
+
         if not Book.objects.filter(id=book_id).exists():
             return JsonResponse({"MESSAGE": "BOOK DOES NOT EXIST"}, status=404)
         
@@ -143,3 +143,19 @@ class CommentLikeView(View):
             return JsonResponse({"MESSAGE": "COMMENT DOES NOT EXIST"}, status=404)
         except:
             return JsonResponse({"MESSAGE": "WRONG FORMAT"}, status=401) 
+
+class SearchMainView(View):
+    def get(self, request):
+        try:
+            categories = Category.objects.all()
+            book       = BookCategory.objects.select_related('book', 'category')
+            
+            category_list = [{
+                "image"   : book.filter(category__name=category.name).first().book.image_url if book.filter(category__name=category.name).exists() else "NO IMAGE",
+                "category": category.name
+            }for category in categories]
+
+            return JsonResponse({"RESULT": category_list}, status=200)
+
+        except:
+            return JsonResponse({"MESSAGE": "NO DATA"}, status=404)
