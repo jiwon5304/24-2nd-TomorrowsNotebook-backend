@@ -159,3 +159,34 @@ class SearchMainView(View):
 
         except:
             return JsonResponse({"MESSAGE": "NO DATA"}, status=404)
+
+class SearchView(View):
+    def get(self, request):
+        search_target = request.GET.get('Search_Target', '')
+        target        = request.GET.get('target', '')
+        
+        q = Q()
+
+        search_filter = {
+            'all'     : Q(author__name__icontains = target) | Q(category__name__icontains = target) | Q(title__icontains = target),
+            'author'  : Q(author__name__icontains = target),
+            'category': Q(category__name__icontains = target),
+            'title'   : Q(title__icontains = target),
+        }
+
+        books = Book.objects.filter(search_filter[search_target]).prefetch_related('author', 'category').distinct()
+
+        if not books:
+            return JsonResponse({"RESULT": []},status=200)
+
+        books_list = [{
+            "title"  : book.title,
+            "image"  : book.image_url,
+            "book_id": book.id,
+            "author" : [author.name for author in book.author.all()],
+        }for book in books]
+
+        return JsonResponse({
+            "RESULT"    : books_list,
+            "books_count": len(books)
+            }, status=200)
