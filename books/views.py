@@ -41,11 +41,12 @@ class BookDetailView(View):
         
         return JsonResponse({"RESULT": book_list}, status=200)
 
+
 class CommentView(View):
     # 회원용, 비회원용
     @login_decorator
     def get(self, request, book_id):
-
+       
         if not Book.objects.filter(id=book_id).exists():
             return JsonResponse({"MESSAGE": "BOOK DOES NOT EXIST"}, status=404)
         
@@ -79,6 +80,7 @@ class CommentView(View):
             "comments_count": comments.count(),
             "comments": comment_list
         }, status=201)
+
 
     @login_decorator
     def post(self, request, book_id):
@@ -116,6 +118,7 @@ class CommentView(View):
 
 
 class CommentLikeView(View):
+    # 데코레이터로 id 값 가져와야함
     @login_decorator
     def post(self, request):
         try:
@@ -144,23 +147,9 @@ class CommentLikeView(View):
         except:
             return JsonResponse({"MESSAGE": "WRONG FORMAT"}, status=401) 
 
-class SearchMainView(View):
-    def get(self, request):
-        try:
-            categories = Category.objects.all()
-            book       = BookCategory.objects.select_related('book', 'category')
-            
-            category_list = [{
-                "image"   : book.filter(category__name=category.name).first().book.image_url if book.filter(category__name=category.name).exists() else "NO IMAGE",
-                "category": category.name
-            }for category in categories]
-
-            return JsonResponse({"RESULT": category_list}, status=200)
-
-        except:
-            return JsonResponse({"MESSAGE": "NO DATA"}, status=404)
-
+# 검색창
 class SearchView(View):
+    
     def get(self, request):
         search_target = request.GET.get('Search_Target', '')
         target        = request.GET.get('target', '')
@@ -190,7 +179,27 @@ class SearchView(View):
             "RESULT"    : books_list,
             "books_count": len(books)
             }, status=200)
+
+
+# 검색창 메인페이지(카테고리 별 image 가져오기)
+class SearchMainView(View):
+    def get(self, request):
+        try:
+            categories = Category.objects.all()
+            book       = BookCategory.objects.select_related('book', 'category')
             
+            category_list = [{
+                "image"   : book.filter(category__name=category.name).first().book.image_url if book.filter(category__name=category.name).exists() else "NO IMAGE",
+                "category": category.name
+            }for category in categories]
+
+            return JsonResponse({"RESULT": category_list}, status=200)
+
+        except:
+            return JsonResponse({"MESSAGE": "NO DATA"}, status=404)
+
+
+# 메인페이지 1       
 class NewBooksView(View):
     def get(self, request):
         
@@ -198,18 +207,6 @@ class NewBooksView(View):
         LIMIT  = request.GET.get('limit', '')
 
         books  = Book.objects.all().order_by('-publish_date')
-class BookPublisherView(View):
-    def get(self, request):
-        publisher = request.GET.get('search', '')
-        LIMIT = request.GET.get('limit', '')
-        OFFSET = 0
-
-        q = Q()
-
-        if publisher:
-            q = Q(publisher__name=publisher)
-        
-        books  = Book.objects.select_related('publisher').filter(q)
 
         if LIMIT == '' or int(LIMIT) >= len(books):
             LIMIT = len(books)
@@ -225,6 +222,8 @@ class BookPublisherView(View):
 
         return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=200)
 
+
+# 메인 페이지 2
 class MovieRecommend(View):
     def get(self, request):
         
@@ -248,3 +247,64 @@ class MovieRecommend(View):
         }for book in books]
 
         return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=200)
+
+
+# 메인페이지 #3
+class BookPublisherView(View):
+    def get(self, request):
+        publisher = request.GET.get('search', '')
+        LIMIT = request.GET.get('limit', '')
+        OFFSET = 0
+
+        q = Q()
+
+        if publisher:
+            q = Q(publisher__name=publisher)
+        
+        books  = Book.objects.select_related('publisher').filter(q)
+
+        if LIMIT == '' or int(LIMIT) >= len(books):
+            LIMIT = len(books)
+        else:
+            LIMIT = int(LIMIT)
+
+        publish_list = [{
+            "title": book.title,
+            "image": book.image_url,
+            "book_id"   : book.id,
+            "author" : [author.name for author in book.author.all()],
+        }for book in books]
+        
+        return JsonResponse({"RESULT":publish_list[OFFSET:LIMIT]}, status=200)
+
+
+# 메인페이지 #4
+class BookGenreView(View):
+
+    def get(self, request):
+        genre = request.GET.get('search', '')
+        LIMIT = request.GET.get('limit', '')
+        OFFSET = 0
+
+        q = Q()
+        
+        if genre:
+            q = Q(category__name=genre)
+
+        books = Book.objects.filter(q).prefetch_related('author')
+        
+        if LIMIT == '' or int(LIMIT) >= len(books):
+            LIMIT = len(books)
+        else:
+            LIMIT = int(LIMIT)
+
+        book_list = [{
+            "book_id": book.id,
+            "title" : book.title,
+            "author": [author.name for author in book.author.all()],
+            "image" : book.image_url,
+        }for book in books]
+            
+        return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=201)
+
+
