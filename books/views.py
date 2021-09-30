@@ -190,3 +190,25 @@ class SearchView(View):
             "RESULT"    : books_list,
             "books_count": len(books)
             }, status=200)
+            
+class NewBooksView(View):
+    def get(self, request):
+        
+        OFFSET = 0
+        LIMIT  = request.GET.get('limit', '')
+
+        books  = Book.objects.all().order_by('-publish_date')
+
+        if LIMIT == '' or int(LIMIT) >= len(books):
+            LIMIT = len(books)
+        else:
+            LIMIT = int(LIMIT)
+
+        book_list = [{
+            "book_id": book.id,
+            "title"  : book.title,
+            "image"  : book.image_url,
+            "author" : [author.name for author in book.author.all()],
+        }for book in books]
+
+        return JsonResponse({"RESULT": book_list[OFFSET:LIMIT]}, status=200)

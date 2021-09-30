@@ -22,3 +22,4 @@ urlpatterns = [
     path('/publisher',BookPublisherView.as_view()),
     path('/new',NewBooksView.as_view()),
 ]
+
