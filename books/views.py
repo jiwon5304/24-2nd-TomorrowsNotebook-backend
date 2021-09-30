@@ -41,6 +41,79 @@ class BookDetailView(View):
         
         return JsonResponse({"RESULT": book_list}, status=200)
 
+class CommentView(View):
+    # 회원용, 비회원용
+    @login_decorator
+    def get(self, request, book_id):
+       
+        if not Book.objects.filter(id=book_id).exists():
+            return JsonResponse({"MESSAGE": "BOOK DOES NOT EXIST"}, status=404)
+        
+        comments = Comment.objects.select_related('user').filter(book_id=book_id)
+        
+        if request.user:
+            user_id  = request.user.id
+        
+            comment_list = [{
+                "nickname"     : comment.user.nickname,
+                "profile_image": comment.user.profile_image_url,
+                "comment"      : comment.text,
+                "comment_id"   : comment.id,
+                "written"      : comment.updated_at.strftime("%Y.%m.%d"),
+                "likes"        : comment.like_count,
+                "liked"        : True if CommentLike.objects.filter(comment_id=comment.id, user_id=user_id).exists() else False,
+                "is_my_comment": True if comment.user_id == int(user_id) else False
+            }for comment in comments]
+        
+        else:
+            comment_list = [{
+                "nickname"     : comment.user.nickname,
+                "profile_image": comment.user.profile_image_url,
+                "comment"      : comment.text,
+                "comment_id"   : comment.id,
+                "written"      : comment.updated_at.strftime("%Y.%m.%d"),
+                "likes"        : comment.like_count,
+            }for comment in comments]
+
+        return JsonResponse({
+            "comments_count": comments.count(),
+            "comments": comment_list
+        }, status=201)
+
+    @login_decorator
+    def post(self, request, book_id):
+        try:
+            data    = json.loads(request.body)
+            user_id = request.user.id
+            
+            Comment.objects.create(
+                book_id = book_id,
+                user_id = user_id,
+                text    = data['text']
+            )   
+        
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
+
+        except:
+            return JsonResponse({"MESSAGE": "WRONG FORMAT"}, status=401)
+
+    @login_decorator
+    def delete(self, request, book_id):
+        user_id    = request.user.id
+        comment_id = request.GET.get('comment_id', None)
+        
+        if not Comment.objects.filter(id=comment_id).exists():
+            return JsonResponse({"MESSAGE": "COMMENT DOES NOT EXIST"}, status=401)
+        
+        comment = Comment.objects.get(id=comment_id)
+
+        if user_id == comment.user_id:
+            comment.delete()
+        else: 
+            return JsonResponse({"MESSAGE": "INVALID USER"}, status=401)
+        
+        return JsonResponse({"MESSAGE": "SUCCESS"}, status=204)
+
 
 class CommentLikeView(View):
     @login_decorator
