@@ -23,7 +23,7 @@ class SocialLoginView(View):
             profile_json = response.json()
 
             if profile_json.get('code') == -401:
-                return JsonResponse({'message':'INVALID_TOKEN'}, status=401)
+                return JsonResponse({'MESSAGE':'INVALID_TOKEN'}, status=401)
 
             kakao_id          = profile_json["id"]
             nickname          = profile_json["kakao_account"]["profile"]["nickname"]
@@ -40,6 +40,6 @@ class SocialLoginView(View):
         
             token = jwt.encode({"id" : user.id}, settings.SECRET_KEY, algorithm = ALGORITHM)
 
-            return JsonResponse({"message" : "SUCCESS", "access_token" : token}, status = 200)
+            return JsonResponse({"MESSAGE" : "SUCCESS", "ACCESS_TOKEN" : token}, status = 200)
         except KeyError:
-            return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
+            return JsonResponse({"MESSAGE" : "KEY_ERROR"}, status = 400)

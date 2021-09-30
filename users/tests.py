@@ -55,7 +55,7 @@ class SocialLoginViewTest(TestCase):
         token = jwt.encode({"id" : user.id}, settings.SECRET_KEY, algorithm = ALGORITHM)
         
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message" : "SUCCESS", "access_token": token})
+        self.assertEqual(response.json(), {"MESSAGE" : "SUCCESS", "ACCESS_TOKEN": token})
 
     @patch("users.views.requests")
     def test_kakao_signin_post_fail(self, mocked_requests):

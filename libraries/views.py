@@ -97,3 +97,24 @@ class ShelfDeleteView(View):
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=404)
             
+class ViewerView(View):
+    @login_decorator
+    def get(self, request, book_id):
+        if request.user:
+            library_book = LibraryBook.objects.select_related('book', 'library', 'book__book_info').filter(library__user = request.user, book__id=book_id).prefetch_related('book__author')
+
+            result = [{
+                'book_id' : library.book.id,
+                'title' : library.book.title,
+                'author' : [author.name for author in library.book.author.all()],
+                'book_info' : library.book.book_info.contents,
+                'image_url' : library.book.image_url,
+                'current_page' : library.current_page,
+                's3_url' : library.book.book_info.text
+            }for library in library_book]
+
+            return JsonResponse({'RESULT' : result}, status = 200)
+        
+        else:
+            return JsonResponse({'MESSAGE' : "WRONG_FORMAT"}, status = 401)
+

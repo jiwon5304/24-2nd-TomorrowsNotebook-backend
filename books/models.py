@@ -74,7 +74,6 @@ class Comment(TimeStamp):
     text       = models.CharField(max_length = 500)
     like_count = models.PositiveIntegerField(default=0)
     user_like  = models.ManyToManyField(User, through = "CommentLike", related_name = "like")
-    
 
     class Meta:
         db_table = "comments"
