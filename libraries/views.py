@@ -25,3 +25,25 @@ class ShelfDeleteView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=404)
+            
+class LibraryListView(View):
+    def get(self, request, book_id):
+        librarybook = LibraryBook.objects.filter(book_id = book_id)
+
+        double_check_list = []
+        list = []
+        for id in librarybook:
+            if id.library_id not in double_check_list:
+                list.append(id.library_id)
+                double_check_list.append(id.library_id)
+        
+        results=[]
+        results.append({"total_library_count" : len(list)})
+
+        for user_id in list:
+            user_library = Library.objects.get(id=user_id)
+            results.append({
+                "user_nickname" : user_library.user.nickname,
+                "user_url" : user_library.user.profile_image_url
+            })
+        return JsonResponse({"results": results}, status=200)
