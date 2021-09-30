@@ -1,4 +1,4 @@
-import bcrypt, jwt
+import jwt
 import json
 import unittest
 
@@ -203,3 +203,4 @@ class CommentLikeViewTest(TestCase):
         response = client.post('/books/comments-like?comment_id=1', **{"HTTP_Authorization" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.CDU_6JOu5bOI9SzTF_LRl1I7jso1QxbsiW_-WGrLyAE"}, content_type = 'application/json')
         
         self.assertEqual(response.status_code, 401)
+        
