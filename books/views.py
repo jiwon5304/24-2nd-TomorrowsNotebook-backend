@@ -46,7 +46,7 @@ class CommentView(View):
     # 회원용, 비회원용
     @login_decorator
     def get(self, request, book_id):
-       
+    
         if not Book.objects.filter(id=book_id).exists():
             return JsonResponse({"MESSAGE": "BOOK DOES NOT EXIST"}, status=404)
         

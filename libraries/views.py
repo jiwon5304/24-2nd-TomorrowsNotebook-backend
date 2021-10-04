@@ -65,7 +65,6 @@ class ShelfListView(View):
     def get(self, request):
         user         = User.objects.get(id=request.user.id)    
         user_library = Library.objects.get(user_id=request.user.id)   
-
         totalshelves   = user_library.shelf_set.all()
 
         shelves_list = [{
@@ -109,7 +108,7 @@ class LibraryView(View):
             if not shelf_name:
                 return JsonResponse({"MESSAGE": "INPUT ERROR"}, status=404)
 
-            if Shelf.objects.filter(name=shelf_name).exists():
+            if Shelf.objects.filter(library_id=user_library.id, name=shelf_name).exists():
                 return JsonResponse({"MESSAGE": "ALREADY EXISTED SHELF"}, status=404)
 
             Shelf.objects.create(
