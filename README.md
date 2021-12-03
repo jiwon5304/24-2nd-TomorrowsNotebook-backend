@@ -1,18 +1,19 @@
-# 📒 밀리의 서재 모티브의 전자책 구독 플랫폼 프로젝트 소개<br>
-### 📍 프로젝트 개요!!
+# 📒 밀리의 서재 모티브의 전자책 구독 플랫폼 프로젝트 소개
 
-독서와 무제한 친해지리, 전자책 구독서비스 밀리의 서재 어플리케이션을 모티브로 한 전자책 구독 플랫폼 구현 
+### 📍 프로젝트 개요
+독서와 무제한 친해지리, 전자책 구독서비스 밀리의 서재 어플리케이션을 모티브로 한 전자책 구독 플랫폼 구현
 
-<br>
+### 📍 개발 인원과 기간
 
-### 📍 개발 인원과 기간<br>
-##### ✅  개발팀
-- 내일채움공책팀<br>
+#### ✅ 개발팀
+|이름   |담당 기능|
+|-------|--------------------|
+|박지원 |  |
+|이무현 |   |
+|신우주 |   |
+
 ##### ✅  개발기간
-- 2021/09/13 ~ 2021/10/1 (연휴기간 제외)<br>
-##### ✅  개발 인원(총 6명)
-- FE: 강연옥 조성환 주철진 (3명)<br>
-- BE: 박지원 신우주 이무현 (3명)<br>
+- 2021/09/13 ~ 2021/10/1 (연휴기간 제외)
 
 ##### ❗️ Reference
 이 프로젝트는 밀리의 서재 어플리케이션을 참조하여 학습목적으로 만들었습니다.
@@ -142,3 +143,82 @@
   <br>
   
 </div>
+
+
+
+
+## 과제 내용
+> 아래 요구사항에 맞춰 게시판 Restfull API를 개발합니다.
+- 에이모 선호 기술스택: python flask, mashmallow, mongoengine
+- 필수 사용 데이터베이스: mongodb
+
+### [필수 포함 사항]
+- Swagger나 Postman을 이용하여 API 테스트 가능하도록 구현
+- READ.ME 작성
+    - 프로젝트 빌드, 자세한 실행 방법 명시
+    - 구현 방법과 이유에 대한 간략한 설명
+    - 완료된 시스템이 배포된 서버의 주소
+    - Swagger나 Postman을 통한 API 테스트할때 필요한 상세 방법
+    - 해당 과제를 진행하면서 회고 내용 블로그 포스팅
+
+### [개발 요구사항]
+- 원티드 지원 과제 내용 포함 (기본적인 게시판 글쓰기)
+- 게시글 카테고리
+- 게시글 검색
+- 대댓글(1 depth)
+    - 댓글 및 대댓글 pagination
+- 게시글 읽힘 수
+    - 같은 User가 게시글을 읽는 경우 count 수 증가하면 안 됨
+- Rest API 설계
+- Unit Test
+- 1000만건 이상의 데이터를 넣고 성능테스트 진행 결과 필요
+
+
+## 사용 기술 및 tools
+> - Back-End :  <img src="https://img.shields.io/badge/Python 3.8-3776AB?style=for-the-badge&logo=Python&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Django 3.2-092E20?style=for-the-badge&logo=Django&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/mongodb 5.0-1b9e41?style=for-the-badge&logo=Mongodb&logoColor=white"/>
+> - Deploy : <img src="https://img.shields.io/badge/AWS_EC2-232F3E?style=for-the-badge&logo=Amazon&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Docker-0052CC?style=for-the-badge&logo=Docker&logoColor=white"/>
+> - ETC :  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=Git&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white"/>
+
+## 모델링
+![5 drawio](https://user-images.githubusercontent.com/8315252/139969615-38f01f08-cc1c-427e-87a6-09671525525b.png)
+
+## API
+[링크-postman document](https://documenter.getpostman.com/view/16042359/UVBzmpLX)
+
+## 구현 기능
+### 회원가입, 로그인
+-
+-
+
+### 게시글 CRUD
+-
+-
+
+### 댓글 대댓글 CRUD
+-
+-
+
+
+
+## API TEST 방법
+1. 우측 링크를 클릭해서 postman으로 들어갑니다. [링크](https://www.postman.com/wecode-21-1st-kaka0/workspace/assignment1-tw-jw-yy/overview)
+2. 정의된 SERVER_URL이 올바른지 확인 합니다. (18.188.189.173:8000)
+<img width="743" alt="스크린샷 2021-11-03 오전 12 23 05" src="https://user-images.githubusercontent.com/8219812/139912122-87d71d1d-d318-4057-8d76-f7311952ea75.png">
+
+3. 정의된 회원가입, 로그인 요청을 이용해서 access_token을 획득합니다.
+
+4. 각 요청에 header 부분에 Authorization 항목에 획득한 access_token을 입력하여 요청을 진행합니다. 회원가입, 로그인을 제외한 요청에는 access_token이 필요합니다.
+<img width="1255" alt="스크린샷 2021-11-03 오전 1 58 17" src="https://user-images.githubusercontent.com/8219812/139912164-a5f49a32-5128-4902-a9d9-03dfa6a94672.png">
+
+5. 만약 Send버튼이 비활성화가 될 시 fork를 이용해서 해당 postman project를 복사해서 시도하길 바랍니다.
+![image](https://user-images.githubusercontent.com/8219812/139912241-d6cb5831-23e8-4cbb-a747-f52c42601098.png)
+
+
+## 폴더 구조
+```bash
+
+```
+
+## TIL정리 (Blog)
+- 박지원 : https://yesjiwon5304.tistory.com/33
+
